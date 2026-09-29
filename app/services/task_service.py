@@ -12,7 +12,13 @@ def list_tasks(db: Session) -> list[Task]:
 
 
 def get_task(db: Session, task_id: int) -> Task | None:
-    return db.query(Task).filter(Task.id == task_id).first()
+    # 단건이지만 TaskOut이 tags를 직렬화하므로 여기서도 eager 로딩을 붙입니다.
+    return (
+        db.query(Task)
+        .options(selectinload(Task.tags))
+        .filter(Task.id == task_id)
+        .first()
+    )
 
 
 def create_task(db: Session, title: str, tag_names: list[str]) -> Task:
